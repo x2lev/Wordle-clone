@@ -57,7 +57,10 @@ struct ContentView: View {
                     }
                 }
             }
-            if !guessed && guesses < 5 {
+            HStack {
+                
+            }
+            if !guessed && guesses < 6 {
                 HStack {
                     TextField("", text: $input)
                         .frame(height:50)
