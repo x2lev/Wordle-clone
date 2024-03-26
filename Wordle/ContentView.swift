@@ -31,6 +31,11 @@ struct ContentView: View {
     @State var word = ""
     @State var guessed = false
     @FocusState var textFieldFocused: Bool
+    
+    @State var countDownTimer = 5
+    @State var timerRunning = false
+    let timer = Timer.publish
+    
     var rectWidth = 70.0
     var body: some View {
         VStack {
@@ -57,46 +62,55 @@ struct ContentView: View {
                     }
                 }
             }
-            HStack {
-                
-            }
+//            HStack {
+//
+//            }
             if !guessed && guesses < 6 {
-                HStack {
-                    TextField("", text: $input)
-                        .frame(height:50)
-                        .foregroundColor(.black)
-                        .background(.white)
-                        .font(.title)
-                        .cornerRadius(10)
-                        .keyboardType(.alphabet)
-                        .autocorrectionDisabled()
-                        .textInputAutocapitalization(.characters)
-                        .focused($textFieldFocused)
-                        .onChange(of: input) { _ in
-                            input = input.trimmingCharacters(in: .letters.inverted)
-                            if input.count > 0 {
-                                input = input.uppercased()
-                            }
-                            
-                            if input.count > 5 {
-                                let arr = Array(input)
-                                input = ""
-                                for i in 0..<5 {
-                                    input += String(arr[i])
+                VStack {
+                    HStack {
+                        
+                        TextField("", text: $input)
+                            .frame(height:50)
+                            .foregroundColor(.black)
+                            .background(.white)
+                            .font(.title)
+                            .cornerRadius(10)
+                            .keyboardType(.alphabet)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.characters)
+                            .focused($textFieldFocused)
+                            .onChange(of: input) { _ in
+                                input = input.trimmingCharacters(in: .letters.inverted)
+                                if input.count > 0 {
+                                    input = input.uppercased()
+                                }
+                                
+                                if input.count > 5 {
+                                    let arr = Array(input)
+                                    input = ""
+                                    for i in 0..<5 {
+                                        input += String(arr[i])
+                                    }
                                 }
                             }
-                        }
-                        .onSubmit { guess() }
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(.gray, lineWidth: 3)
-                        }
-                    Button("Submit") { guess() }
-                        .buttonStyle(.bordered)
-                        .tint(.gray)
-                        .disabled(!words.contains(input))
-                }.padding(.horizontal)
-            } else {
+                            .onSubmit { guess() }
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(.gray, lineWidth: 3)
+                            }
+                        Button("Submit") { guess() }
+                            .buttonStyle(.bordered)
+                            .tint(.gray)
+                            .disabled(!words.contains(input))
+                    }.padding(.horizontal)
+                    Text("Not a word")
+                        .font(.title)
+                        .fontWeight(.black)
+                        .foregroundColor(.red)
+                }
+            }
+            
+            else {
                 Text(guessed
                      ? "You won in \(guesses) \(guesses == 1 ? "guess" : "guesses")!"
                      : "You lost...")
@@ -154,7 +168,10 @@ struct ContentView: View {
     }
     func guess() {
         textFieldFocused = false
-        if words.contains(input) {
+        if !words.contains(input){
+            print("not a word")
+        }
+        else {
             let arr = Array(input)
             
             for (i, l) in word.enumerated() {
