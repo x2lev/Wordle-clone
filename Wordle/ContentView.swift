@@ -34,7 +34,10 @@ struct ContentView: View {
     
     @State var countDownTimer = 5
     @State var timerRunning = false
-    let timer = Timer.publish
+    
+    @State var notWordColorToggle = "black"
+    
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     var rectWidth = 70.0
     var body: some View {
@@ -103,10 +106,20 @@ struct ContentView: View {
                             .tint(.gray)
                             .disabled(!words.contains(input))
                     }.padding(.horizontal)
+                    
                     Text("Not a word")
                         .font(.title)
                         .fontWeight(.black)
-                        .foregroundColor(.red)
+                        .foregroundColor(Color("myRed"))
+                    Text("\(countDownTimer)")
+                        .onReceive(timer) { _ in
+                            if countDownTimer > 0 && timerRunning {
+                                countDownTimer -= 1
+                            } else{ timerRunning = false}
+                        }
+                        .font(.system(size: 80, weight: .bold))
+                        .opacity(0.80)
+                        .foregroundColor(Color("myRed"))
                 }
             }
             
@@ -129,6 +142,17 @@ struct ContentView: View {
             startGame()
         }
     }
+    
+    func notWordError(){
+        
+    }
+    func startTimer(){
+        timerRunning = true
+    }
+    func resetTimer(){
+        countDownTimer = 5
+    }
+    
     func startGame() {
         displayLetters = [
             ["", "", "", "", ""],
