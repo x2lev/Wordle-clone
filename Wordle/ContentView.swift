@@ -24,6 +24,7 @@ struct ContentView: View {
         [.gray, .gray, .gray, .gray, .gray],
         [.gray, .gray, .gray, .gray, .gray]
     ]
+    @State var keys = "qwertyuiopasdfghjklzxcvbnm"
     @State var input = ""
     @State var guesses = 0
     @State var words: [String] = []
@@ -56,9 +57,6 @@ struct ContentView: View {
                             .animation(.easeIn(duration: 0.5))
                     }
                 }
-            }
-            HStack {
-                
             }
             if !guessed && guesses < 6 {
                 HStack {
@@ -156,13 +154,20 @@ struct ContentView: View {
         textFieldFocused = false
         if words.contains(input) {
             let arr = Array(input)
+            var letters = [true, true, true, true, true]
             
             for (i, l) in word.enumerated() {
                 displayLetters[guesses][i] = String(arr[i])
                 if arr[i] == l {
                     displayColors[guesses][i] = .green
-                } else if word.contains(arr[i]) {
-                    displayColors[guesses][i] = .yellow
+                    letters[i] = false
+                }
+            }
+            for l in word {
+                var i = Array(word).firstIndex(of: l) ?? -1
+                var si = word.firstIndex(of: l)!
+                while i != -1 && !letters[i] {
+                    
                 }
             }
             
