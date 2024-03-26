@@ -154,21 +154,29 @@ struct ContentView: View {
         textFieldFocused = false
         if words.contains(input) {
             let arr = Array(input)
-            var letters = [true, true, true, true, true]
+            var letters = Array(word)
             
-            for (i, l) in word.enumerated() {
+            
+            var i = 0
+            for l in word {
+                print(i)
                 displayLetters[guesses][i] = String(arr[i])
                 if arr[i] == l {
                     displayColors[guesses][i] = .green
-                    letters[i] = false
+                    letters[i] = Character("")
                 }
+                i += 1
             }
+            
+            print("green -> yellow")
+            print(letters)
+            
+            var ind = 0
             for l in word {
-                var i = Array(word).firstIndex(of: l) ?? -1
-                var si = word.firstIndex(of: l)!
-                while i != -1 && !letters[i] {
-                    
+                if letters.contains(l) {
+                    displayColors[guesses][ind] = .yellow
                 }
+                ind += 1
             }
             
             if word == input {
