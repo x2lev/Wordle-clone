@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AVFAudio
 
 struct ContentView: View {
     @State var displayLetters = [
@@ -31,11 +32,13 @@ struct ContentView: View {
     @State var word = ""
     @State var guessed = false
     @FocusState var textFieldFocused: Bool
+    @State var wordsGuessed = 0
+    @State var wordsPlayed = 0
+    @State var audioPlayer: AVAudioPlayer!
     
     @State var countDownTimer = 5
     @State var timerRunning = false
-    
-    @State var notWordColorToggle = "black"
+    @State var notWordColorToggle = "myBlack"
     
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
@@ -43,10 +46,10 @@ struct ContentView: View {
     var body: some View {
         VStack {
             HStack {
-                Text("Words Guessed: \("")")
+                Text("Words Guessed: \(wordsGuessed)")
                     .multilineTextAlignment(.leading)
                 Spacer()
-                Text("Words Missed: \("")")
+                Text("Words Played: \(wordsPlayed)")
                     .multilineTextAlignment(.trailing)
             }
             .font(.caption)
@@ -101,25 +104,44 @@ struct ContentView: View {
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(.gray, lineWidth: 3)
                             }
-                        Button("Submit") { guess() }
+                        Button("Submit") {
+                            guess()
+                            let soundName = "sound0"
+                            guard let soundFile = NSDataAsset(name: soundName) else{
+                                print("Could not read file named \(soundName)")
+                                return
+                            }
+                            do{
+                                audioPlayer = try AVAudioPlayer(data: soundFile.data)
+                                audioPlayer.play()
+                            } catch{
+                                print("ERROR: \(error.localizedDescription) creating audio player")
+                            }
+                            
+                        }
                             .buttonStyle(.bordered)
-                            .tint(.gray)
+                            .tint(.white)
                             .disabled(!words.contains(input))
                     }.padding(.horizontal)
                     
                     Text("Not a word")
                         .font(.title)
                         .fontWeight(.black)
-                        .foregroundColor(Color("myRed"))
+                        .foregroundColor(Color(notWordColorToggle))
+                        .animation(.easeIn(duration: 0.2))
                     Text("\(countDownTimer)")
                         .onReceive(timer) { _ in
                             if countDownTimer > 0 && timerRunning {
                                 countDownTimer -= 1
-                            } else{ timerRunning = false}
+                                notWordColorToggle = "myRed"
+                            } else{
+                                timerRunning = false
+                                notWordColorToggle = "myBlack"
+                            }
                         }
                         .font(.system(size: 80, weight: .bold))
                         .opacity(0.80)
-                        .foregroundColor(Color("myRed"))
+                        .foregroundColor(.black)
                 }
             }
             
@@ -129,9 +151,12 @@ struct ContentView: View {
                      : "You lost...")
                     .foregroundColor(.white)
                     .font(.title)
-                Button("Play Again?") { startGame() }
+                Button("Play Again?") { startGame()
+                    wordsPlayed += 1
+                }
                     .buttonStyle(.bordered)
                     .tint(.gray)
+                
             }
             Spacer()
         }
@@ -193,7 +218,11 @@ struct ContentView: View {
     func guess() {
         textFieldFocused = false
         if !words.contains(input){
-            print("not a word")
+            timerRunning = true
+//            print("not a word")
+//            if(countDownTimer >= 0){
+//                notWordColorToggle = "myRed"
+//            }
         }
         else {
             let arr = Array(input)
@@ -210,6 +239,7 @@ struct ContentView: View {
             if word == input {
                 guessed = true
                 print("guessed!")
+                wordsGuessed += 1
             }
             guesses += 1
             input = ""
